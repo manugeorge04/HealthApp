@@ -51,6 +51,7 @@ import android.widget.Button
 import android.widget.TextView
 import kotlin.math.sqrt
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -117,6 +118,13 @@ class MainActivity : AppCompatActivity() {
         // Check if the accelerometer sensor is available
         if (accelerometerSensor == null) {
             // Handle the case where accelerometer sensor is not available
+        }
+
+        val button = findViewById<Button>(R.id.symptoms) // Replace with your button's ID
+        button.setOnClickListener {
+            // Create an Intent to open the new Activity
+            val intent = Intent(this, MainActivity2::class.java)
+            startActivity(intent)
         }
 
         val startButton = findViewById<Button>(R.id.measure_respiratory_rate)
@@ -465,4 +473,6 @@ class MainActivity : AppCompatActivity() {
 //        val ret= (k/12.5)
         return k+12
     }
+
+
 }
