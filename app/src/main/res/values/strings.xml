@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Manu_MC_Proj1</string>
+    <string name="start_capture">Measure Heart Rate</string>
+    <string name="stop_capture">Stop Measuring</string>
+</resources>
