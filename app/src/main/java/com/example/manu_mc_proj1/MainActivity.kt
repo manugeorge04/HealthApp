@@ -35,18 +35,10 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-import android.util.Size
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
-import androidx.core.content.PermissionChecker
 import com.example.manu_mc_proj1.databinding.ActivityMainBinding
-import java.nio.ByteBuffer
+
 
 //BREATHE RATE
-import android.os.Handler
 import android.widget.Button
 import android.widget.TextView
 import kotlin.math.sqrt
@@ -94,8 +86,7 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
         }
 
-        // Set up the listeners for take photo and video capture buttons
-//        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
+        // Set up the listeners for the video capture button
         viewBinding.measureHeartRate.setOnClickListener { captureVideo() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -118,6 +109,8 @@ class MainActivity : AppCompatActivity() {
         // Check if the accelerometer sensor is available
         if (accelerometerSensor == null) {
             // Handle the case where accelerometer sensor is not available
+            val textView = findViewById<TextView>(R.id.textView)
+            textView.text = "No Acceloerometer"
         }
 
         val button = findViewById<Button>(R.id.symptoms) // Replace with your button's ID
@@ -131,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         startButton.setOnClickListener {
             if (!isRecording) {
                 val textView = findViewById<TextView>(R.id.textView)
-                textView.text = "Started Reading"
+                textView.text = "Reading Respiratory Rate ...."
                 startRecording()
             } else {
                 stopRecording()
@@ -139,10 +132,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-//    private fun takePhoto() {}
-
-
 
     private fun requestPermissions() {
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
@@ -406,7 +395,7 @@ class MainActivity : AppCompatActivity() {
 
                 if (isRecording && System.currentTimeMillis() - startTime >= dataCollectionDuration) {
                     val textView = findViewById<TextView>(R.id.textView)
-                    textView.text = "Stopped Reading"
+                    textView.text = "Finished Reading Heart Rate"
                     stopRecording()
                 }
             }
@@ -438,7 +427,7 @@ class MainActivity : AppCompatActivity() {
         if (accelValuesX.size >= 150) {
             val result = callRespiratoryCalculator(accelValuesX, accelValuesY, accelValuesZ)
             val textView = findViewById<TextView>(R.id.textView)
-            textView.text = "Result: $result"
+            textView.text = "Your Respiratory Rate is: $result"
         }
         else{
             var x = accelValuesX.size
