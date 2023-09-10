@@ -48,7 +48,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.provider.BaseColumns
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -90,8 +89,14 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
         }
 
+        dbHelper = (applicationContext as HealthApp).dbHelper
+
+        // Set up the listeners for take photo and video capture buttons
+//        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
         // Set up the listeners for the video capture button
         viewBinding.measureHeartRate.setOnClickListener { captureVideo() }
+
+        viewBinding.uploadSigns.setOnClickListener { uploadSign() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -164,22 +169,6 @@ class MainActivity : AppCompatActivity() {
                     add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 }
             }.toTypedArray()
-        private const val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS ${FeedReaderContract.FeedEntry.TABLE_NAME}"
-        private const val SQL_CREATE_ENTRIES =
-            "CREATE TABLE ${FeedReaderContract.FeedEntry.TABLE_NAME} (" +
-                    "${BaseColumns._ID} INTEGER PRIMARY KEY," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_HEART_RATE} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_BREATH_RATE} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_NAUSEA} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_HEADACHE} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_DIARRHEA} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_SORE_THROAT} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_FEVER} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_MUSCLE_ACHE} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_LOSS_OF_SMELL} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_COUGH} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_SHORTNESS_OF_BREATH} INTEGER," +
-                    "${FeedReaderContract.FeedEntry.COLUMN_NAME_FEELING_TIRED} INTEGER)"
     }
 
     private val activityResultLauncher =
@@ -491,26 +480,22 @@ class MainActivity : AppCompatActivity() {
         return k+12
     }
 
-
-
-    object FeedReaderContract {
-        // Table contents are grouped together in an anonymous object.
-        object FeedEntry : BaseColumns {
-            const val TABLE_NAME = "data"
-            const val COLUMN_NAME_HEART_RATE = "heart_rate"
-            const val COLUMN_NAME_BREATH_RATE = "breath_rate"
-            const val COLUMN_NAME_NAUSEA = "nausea"
-            const val COLUMN_NAME_HEADACHE = "headache"
-            const val COLUMN_NAME_DIARRHEA = "diarrhea"
-            const val COLUMN_NAME_SORE_THROAT = "sore_throat"
-            const val COLUMN_NAME_FEVER = "fever"
-            const val COLUMN_NAME_MUSCLE_ACHE = "muscle_ache"
-            const val COLUMN_NAME_LOSS_OF_SMELL = "loss_of_smell_or_taste"
-            const val COLUMN_NAME_COUGH = "cough"
-            const val COLUMN_NAME_SHORTNESS_OF_BREATH = "shortness_of_breath"
-            const val COLUMN_NAME_FEELING_TIRED = "feeling_tired"
+    private fun uploadSign() {
+        // Gets the data repository in write mode
+        val breath = findViewById<TextView>(R.id.textView).text.toString()
+        val heart = findViewById<TextView>(R.id.textView2).text.toString()
+        val db = dbHelper?.writableDatabase
+        val values = ContentValues().apply {
+            put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_HEART_RATE, heart)
+            put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_BREATH_RATE, breath)
+        }
+        db?.insert(FeedReaderDbHelper.FeedReaderContract.FeedEntry.TABLE_NAME, null, values)
+        if (db != null) {
+            db.close()
         }
     }
+
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.example.manu_mc_proj1
 
+import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -12,10 +13,15 @@ class MainActivity2 : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMain2Binding
 
     private val symptomRatings = mutableMapOf<String, Float>()
+    private var dbHelper: FeedReaderDbHelper? = null
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+        dbHelper = (applicationContext as HealthApp).dbHelper
 
         // Define the list of symptoms
         val symptoms = arrayOf(
@@ -57,6 +63,8 @@ class MainActivity2 : AppCompatActivity() {
             }
         }
 
+        viewBinding.uploadSymptoms.setOnClickListener { uploadSymptoms() }
+
         // Handle RatingBar rating changes
         ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
             val selectedSymptom = ratingBar.tag as? String
@@ -65,6 +73,53 @@ class MainActivity2 : AppCompatActivity() {
                 symptomRatings[selectedSymptom] = rating
             }
         }
+    }
+
+    fun uploadSymptoms() {
+        // Step 1: Retrieve the last row
+        val db = dbHelper?.writableDatabase
+        val cursor = db?.rawQuery("SELECT * FROM data ORDER BY _id DESC LIMIT 1", null)
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Step 2: Update the desired columns
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow("_id"))
+            val nausea = symptomRatings["Nausea"]
+            val headache = symptomRatings["Headache"]
+            val diarrhea = symptomRatings["Diarrhea"]
+            val sore_throat = symptomRatings["Sore Throat"]
+            val fever = symptomRatings["Fever"]
+            val muscle_ache = symptomRatings["Muscle Ache"]
+            val loss = symptomRatings["Loss of Smell or Taste"]
+            val cough = symptomRatings["Cough"]
+            val shortness = symptomRatings["Shortness of Breath"]
+            val tired = symptomRatings["Feeling Tired"]
+
+            // Step 3: Perform the update operation
+            val values = ContentValues()
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_NAUSEA, nausea)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_HEADACHE, headache)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_DIARRHEA, diarrhea)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_SORE_THROAT, sore_throat)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_FEVER, fever)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_MUSCLE_ACHE, muscle_ache)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_LOSS_OF_SMELL, loss)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_COUGH, cough)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_SHORTNESS_OF_BREATH, shortness)
+            values.put(FeedReaderDbHelper.FeedReaderContract.FeedEntry.COLUMN_NAME_FEELING_TIRED, tired)
+
+            val whereClause = "_id = ?"
+            val whereArgs = arrayOf(id.toString())
+
+            val updatedRows = db.update(FeedReaderDbHelper.FeedReaderContract.FeedEntry.TABLE_NAME, values, whereClause, whereArgs)
+
+            cursor.close()
+        } else {
+        }
+
+        if (db != null) {
+            db.close()
+        }
+
     }
 
 }
