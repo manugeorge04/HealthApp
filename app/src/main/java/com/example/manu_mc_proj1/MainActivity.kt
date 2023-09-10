@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     private var recording: Recording? = null
 
     private lateinit var cameraExecutor: ExecutorService
+    private var dbHelper: FeedReaderDbHelper? = null
 
     // BREATHE RATE
     private lateinit var sensorManager: SensorManager
@@ -89,10 +90,6 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
         }
 
-        dbHelper = (applicationContext as HealthApp).dbHelper
-
-        // Set up the listeners for take photo and video capture buttons
-//        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
         // Set up the listeners for the video capture button
         viewBinding.measureHeartRate.setOnClickListener { captureVideo() }
 
@@ -121,6 +118,8 @@ class MainActivity : AppCompatActivity() {
             val textView = findViewById<TextView>(R.id.textView)
             textView.text = "No Acceloerometer"
         }
+
+        dbHelper = (applicationContext as HealthApp).dbHelper
 
         val button = findViewById<Button>(R.id.symptoms) // Replace with your button's ID
         button.setOnClickListener {

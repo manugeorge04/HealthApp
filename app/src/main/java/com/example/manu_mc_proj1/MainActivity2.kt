@@ -15,8 +15,6 @@ class MainActivity2 : AppCompatActivity() {
     private val symptomRatings = mutableMapOf<String, Float>()
     private var dbHelper: FeedReaderDbHelper? = null
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityMain2Binding.inflate(layoutInflater)
